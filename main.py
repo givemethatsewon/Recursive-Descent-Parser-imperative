@@ -30,7 +30,9 @@ def main():
                         break
             lexicalAnalyzer.tokenCounter.printLine() #결과 출력
             print('Result ==>', end=" ")
-            print(symbolTable.symbolTable)
+            for key, value in symbolTable.symbolTable.items():
+                value = value if value else "Unknown"
+                print(f'{key}: {value};', end=" ")
 
 
 

@@ -38,9 +38,9 @@ class TokenCounter:
             if not Parser.hasErrorOnStatement:
                 print("(OK)") 
             else:
-                Parser.hasErrorOnStatement = False
-                Parser.recentMessage = ""
-                
+                print(Parser.recentMessage)
+                Parser.hasErrorOnStatement = False #출력하고 에러 플래그 초기화
+                Parser.recentMessage = ""   #출력하고 현재 에러 메세지 초기화
             self.current_line = ""
             self.token_count[0] = self.token_count[1] = self.token_count[2] = 0
 
