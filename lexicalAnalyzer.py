@@ -76,7 +76,7 @@ def lookup():
     elif c == ';':
         next_token = Token.SEMICOLON
     else:    
-        print(f'(Error) Lexical Anaylzer :: 모르는 문자(" {input_char} ")가 입력되었습니다.')
+        print(f'(Error) Lexical Anaylzer :: 정의되지 않은 문자 (" {input_char} ")가 입력되었습니다.')
         next_token = Token.UNKNOWN
     return next_token
 

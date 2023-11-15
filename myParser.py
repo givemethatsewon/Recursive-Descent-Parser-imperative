@@ -16,7 +16,7 @@ def raise_parser_exception(message: str):
     global hasErrorOnStatement, recentMessage
     hasErrorOnStatement = True
     recentMessage = message
-    raise Exception(f'(Error) Parser :: 문법 오류 {message}')
+    raise Exception
 
 #경고 처리를 위한 함수
 def raise_parser_warning(message: str):
@@ -28,13 +28,14 @@ def raise_parser_warning(message: str):
 #다음 토큰을 가져오는 함수. NEWLINE을 만나면 재귀적으로 실행되어 다음 토큰을 가져온다.
 def getNextToken():
     #backup previous token
-    global previousToken, previousTokenString
+    global previousToken, previousTokenString, hasErrorOnStatement, recentMessage
 
     previousToken = lexicalAnalyzer.next_token
     previousTokenString = lexicalAnalyzer.token_string
 
     next_token = lexicalAnalyzer.lexical()
     if next_token == Token.NEWLINE:
+        hasErrorOnStatement = False
         return getNextToken()
     
     # print(f"Next_Token: {next_token}, Token String: {lexicalAnalyzer.token_string}")
@@ -71,7 +72,7 @@ def statements():
     if current_token == Token.SEMICOLON:
         next_token = getNextToken() #다음 토큰
         if next_token == Token.EOF:
-            raise_parser_warning('세미콜론 뒤에 주어진 <statement> 없음. 불필요한 ;이 사용되었음')
+            print('(Error) Parser :: 문법 오류_ 세미콜론 뒤에 주어진 <statement> 없음. 불필요한 ;이 사용되었음')
         statement() 
         lexicalAnalyzer.tokenCounter.printLine() #결과 출력
     print("Exit statements")
@@ -91,11 +92,11 @@ def statement():
                 parsed_value = expression() 
                 symbolTable.setVar(name, parsed_value)
             except Exception as e:
-                raise_parser_exception(str(e))
+                print(e)
         else: #등호가 안 나온 경우
-            raise_parser_exception('"=(assignment)"이 없음.')
+            print('(Error) Parser :: 문법 오류_ ":=(assignment)"이 없음.')
     else: #ident가 안 나온 경우
-        raise_parser_exception('statement 형식이 잘못됨.')
+        print('(Error) Parser :: 문법 오류_ statement 형식이 잘못됨.')
     print("Exit statement")
 
 
@@ -172,7 +173,7 @@ def factor():
         if current_token == Token.RIGHT_PAREN:
             next_token = getNextToken() #다음 토큰
             return parsed_value
-        raise_parser_exception('")" 로 괄호가 닫히지 않음')
+        print('(Error) Parser :: 문법 오류_ ")" 로 괄호가 닫히지 않음')
     elif current_token == Token.IDENT:
         name = lexicalAnalyzer.token_string #현재 토큰(IDENT)의 token_string
         next_token = getNextToken() #다음 토큰
@@ -203,5 +204,5 @@ def factor():
         lexicalAnalyzer.tokenCounter.current_line = temp
         hasErrorOnStatement = True
         return factor()
-    raise_parser_exception(f'잘못된 factor ({previousTokenString})이(가) 주어짐, factor는 <left_paren>, <ident>, <const> 중 하나가 와야함')
+    print(f'(Error) Parser :: 문법 오류_ 잘못된 factor ({previousTokenString})이(가) 주어짐, factor는 <left_paren>, <ident>, <const> 중 하나가 와야함')
 
