@@ -1,4 +1,5 @@
 import myToken as Token
+import myParser as Parser
 
 token_count = 0
 token_string = ''
@@ -34,9 +35,14 @@ class TokenCounter:
         if self.current_line.strip() != "":
             print(self.current_line)
             print(f'ID: {self.token_count[self.id_idx]}; CONST: {self.token_count[self.const_idx]}; OP: {self.token_count[self.op_idx]};')
+            if not Parser.hasErrorOnStatement:
+                print("(OK)") 
+            else:
+                Parser.hasErrorOnStatement = False
+                Parser.recentMessage = ""
+                
             self.current_line = ""
             self.token_count[0] = self.token_count[1] = self.token_count[2] = 0
-
 
 tokenCounter = TokenCounter()
 
@@ -50,7 +56,7 @@ def lexicalAnalyzer():
         Token.print_token(lexical())
 
 def lookup():
-    global next_token
+    global next_token, tokenCounter
     addChar()
     c = token_string[0]
     if ord(c) <= 32:
@@ -86,9 +92,12 @@ def addChar():
         
 
 def getChar():
-    global input_char
+    global input_char, tokenCounter
     input_char = input_stream.read(1)
     
+    if input_char:
+        tokenCounter.appendChar(input_char)
+
     if not input_char:
         return "EOF"
     elif input_char.isalpha():

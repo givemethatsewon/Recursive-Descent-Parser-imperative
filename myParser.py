@@ -3,7 +3,7 @@ import lexicalAnalyzer
 import symbolTable
 import myToken as Token
 
-
+#TODO 세미콜론 없는 경우 경고 만들고 parsing 계속하도록
 #전역 변수 - 함수 내에서 조회할 땐 그냥 쓰되 함수 내에서 전역 변수에 값 변경이 일어나야하면 global로 선언하고 사용
 hasErrorOnStatement = False
 recentMessage = ""
@@ -37,7 +37,7 @@ def getNextToken():
     if next_token == Token.NEWLINE:
         return getNextToken()
     
-    print("Next_Token: " + next_token + ", Token String: " + lexicalAnalyzer.token_string)
+    # print(f"Next_Token: {next_token}, Token String: {lexicalAnalyzer.token_string}")
     return next_token
 
 
@@ -65,14 +65,15 @@ def program():
 def statements():
     print("Enter statements")
     statement()
-
     current_token = lexicalAnalyzer.next_token #현재 토큰
 
+    lexicalAnalyzer.tokenCounter.printLine() #결과 출력
     if current_token == Token.SEMICOLON:
         next_token = getNextToken() #다음 토큰
         if next_token == Token.EOF:
             raise_parser_warning('세미콜론 뒤에 주어진 <statement> 없음. 불필요한 ;이 사용되었음')
-        statement() #else 있어야하나?
+        statement() 
+        lexicalAnalyzer.tokenCounter.printLine() #결과 출력
     print("Exit statements")
 
 
@@ -160,6 +161,7 @@ def factor_tail():
 # <factor> → <left_paren><expression><right_paren> | <ident> | <const>
 def factor():
     print("Enter factor")
+    global hasErrorOnStatement
     current_token = lexicalAnalyzer.next_token #현재 토큰
 
     if current_token == Token.LEFT_PAREN:
