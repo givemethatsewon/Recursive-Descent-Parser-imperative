@@ -41,9 +41,8 @@ class TokenCounter:
 tokenCounter = TokenCounter()
 
 #main driver
-def lexicalAnalyzer(file_handle):
-    global input_stream, charClass
-    input_stream = file_handle
+def lexicalAnalyzer():
+    global charClass
     
     getChar()
     Token.print_token(lexical())

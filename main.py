@@ -1,25 +1,31 @@
 import sys
 import lexicalAnalyzer
-import myToken
-import myParser
+import myToken as Token
+import myParser as Parser
 
 #python main.py -v input.txt
 def main():
-    # command_line = sys.argv[1:] #[-v, input.txt]/
-    command_line = ["-v", "inputs/eval1.in.txt"]
+    command_line = sys.argv[1:] #[-v, input.txt]/
     try:
         if command_line[-1] != "-v":
             file_name = command_line[-1]
             verbose = True if command_line[0] == "-v" else False
-            print("file_name: ", file_name, "verbose: ", verbose)
+            print("file_name:", file_name, "verbose:", verbose)
         else:
             raise IndexError
 
+        file_handle = open(file_name, "r")
+        lexicalAnalyzer.input_stream = file_handle
         if verbose:
-            file_handle = open(file_name, "r")
-            lexicalAnalyzer.lexicalAnalyzer(file_handle)
+            lexicalAnalyzer.lexicalAnalyzer()
 
-
+        else:
+            try:
+                while lexicalAnalyzer.next_token != Token.EOF:
+                    Parser.program()
+            except RuntimeError as e:
+                print(e)
+                return
 
 
     except IndexError:
@@ -32,10 +38,9 @@ def main():
         print("Error: File not found")
         return
     
-    except RuntimeError as e:
-        print(e)
-        return
-    
+    finally:
+        file_handle.close()
+
 
 if __name__ == "__main__":
     main()
