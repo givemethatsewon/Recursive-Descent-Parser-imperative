@@ -8,6 +8,38 @@ input_char = None
 longLexeme = False
 
 
+class TokenCounter:
+    id_idx = 0
+    const_idx = 1
+    op_idx = 2
+
+    current_line = ""
+    token_count = [0, 0, 0]
+
+    def addId(self):
+        self.token_count[self.id_idx] += 1
+    
+    def addConst(self):
+        self.token_count[self.const_idx] += 1
+    
+    def addOp(self):
+        self.token_count[self.op_idx] += 1
+    
+    def appendChar(self, ch: str):
+        if ch != '\n' and ch != '\r':
+            self.current_line += ch
+
+    def printLine(self):
+        if self.current_line.strip() != "":
+            print(self.current_line)
+            print(f'ID: {self.token_count[self.id_idx]}; CONST: {self.token_count[self.const_idx]}; OP: {self.token_count[self.op_idx]};')
+            self.current_line = ""
+            self.token_count[0] = self.token_count[1] = self.token_count[2] = 0
+
+
+tokenCounter = TokenCounter()
+
+
 char_group = {
     "LETTER": 0,
     "DIGIT": 1,
@@ -152,33 +184,3 @@ def lexical():
         return next_token
 
 
-class TokenCounter:
-    id_idx = 0
-    const_idx = 1
-    op_idx = 2
-
-    current_line = ""
-    token_count = [0, 0, 0]
-
-    def addId(self):
-        self.token_count[self.id_idx] += 1
-    
-    def addConst(self):
-        self.token_count[self.const_idx] += 1
-    
-    def addOp(self):
-        self.token_count[self.op_idx] += 1
-    
-    def appendChar(self, ch: str):
-        if ch != '\n' and ch != '\r':
-            self.current_line += ch
-
-    def printLine(self):
-        if self.current_line.strip() != "":
-            print(self.current_line)
-            print(f'ID: {self.token_count[self.id_idx]}; CONST: {self.token_count[self.const_idx]}; OP: {self.token_count[self.op_idx]};')
-            self.current_line = ""
-            self.token_count[0] = self.token_count[1] = self.token_count[2] = 0
-
-
-tokenCounter = TokenCounter()
