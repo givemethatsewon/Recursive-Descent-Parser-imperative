@@ -52,10 +52,11 @@ def statements():
     global hasErrorOnStatement, recentMessage
 
     statement()
+    lexicalAnalyzer.tokenCounter.printLine() #결과 출력
+    
     current_token = lexicalAnalyzer.next_token #현재 토큰
 
-    lexicalAnalyzer.tokenCounter.printLine() #결과 출력
-    if current_token == Token.SEMICOLON:
+    if current_token == Token.SEMICOLON:    #세미콜론 만남
         next_token = getNextToken() #다음 토큰
         if next_token == Token.EOF:
             hasErrorOnStatement = True
@@ -79,8 +80,9 @@ def statement():
                 parsed_value = expression() 
                 symbolTable.setVar(name, parsed_value)
             except Exception as e:  #expression에서 에러가 발생한 경우
+                symbolTable.setVar(name, None)
                 hasErrorOnStatement = True
-                recentMessage = '(Error) Parser:: 문법 오류_ 우변에서 발생, 원인:' + str(e)
+                recentMessage = '(Error) Parser:: 문법 오류_ 식에서 정의되지 않은 변수가 사용됨.'
         else: #등호가 안 나온 경우
             hasErrorOnStatement = True
             recentMessage = '(Error) Parser :: 문법 오류_ ":=(assignment)"이 없음.'
@@ -158,6 +160,7 @@ def factor():
     elif current_token == Token.IDENT:
         name = lexicalAnalyzer.token_string #현재 토큰(IDENT)의 token_string
         next_token = getNextToken() #다음 토큰
+
         if symbolTable.hasKey(name) and symbolTable.getValue(name):
             return symbolTable.getValue(name)
         symbolTable.setVar(name, None)
