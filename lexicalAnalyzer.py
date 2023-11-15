@@ -105,9 +105,9 @@ def getChar():
     elif input_char.isdigit():
         return "DIGIT"
     elif input_char.isspace():
-        if input_char == "\n" or input_char == "\r":
-            return "NEWLINE"
-        else:
+        if input_char == '\n':
+            return 'NEWLINE'
+        elif isWhitespace(input_char):
             return "WHITESPACE"
     elif input_char == ":": 
         return "ASSIGNMENT_1"
@@ -117,9 +117,8 @@ def getChar():
         return "EXTRA"
 
 def isWhitespace(ch: str):
-    if ch == '\n' or ch == '\r' or ' ':
-        return False
     return ord(ch) <= 32 
+
 
 def lexical():
     global token_string, next_token, longLexeme, tokenCounter, charClass

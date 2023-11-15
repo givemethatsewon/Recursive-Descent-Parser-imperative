@@ -194,4 +194,3 @@ def factor():
     
     hasErrorOnStatement = True
     recentMessage = f'(Error) Parser :: 문법 오류_ 잘못된 factor ({previousTokenString})이(가) 주어짐, factor는 <left_paren>, 정의된 <ident>, <const> 중 하나가 와야함'
-

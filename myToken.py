@@ -6,7 +6,7 @@ ADD_OP = 4  # "[+ | -]"
 MULT_OP = 5  # "[* | /]"
 LEFT_PAREN = 6  # "("
 RIGHT_PAREN = 7  # ")"
-NEWLINE = 8  # "[\n | \r]"
+NEWLINE = 8  # "[\n]"
 EOF = 98  # "EOF"
 UNKNOWN = 99  # Exception
 
