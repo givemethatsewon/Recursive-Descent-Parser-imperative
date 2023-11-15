@@ -1,0 +1,2 @@
+operand1 := 2 +**/**/- 4 ;
+operand2 := 2 + operand1
