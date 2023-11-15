@@ -7,6 +7,7 @@ input_stream = None
 input_char = None
 longLexeme = False
 
+
 char_group = {
     "LETTER": 0,
     "DIGIT": 1,
@@ -29,7 +30,7 @@ def addChar():
         
 
 def getChar(add: bool):
-    global input_stream, input_char
+    global input_char
     input_char = input_stream.read(1)
     
     if add:
@@ -59,8 +60,7 @@ def isWhitespace(ch: str):
     return ord(ch) <= 32 
 
 def lexical():
-    tokenCounter = TokenCounter()
-    global token_string, next_token, longLexeme, input_char
+    global token_string, next_token, longLexeme, input_char, tokenCounter
     token_string = ""
     charClass = getChar(False)
 
@@ -113,7 +113,7 @@ def lexical():
     
     elif charClass == char_group["ASSIGNMENT_2"]:
         print(f'(Error) Lexical Anaylzer :: 모르는 문자(" {input_char} ")가 입력되었습니다.')
-        print('  예상했던 문자는 "="입니다.')
+        print('  예상했던 문자는 ":="입니다.')
         
     elif charClass == char_group["EXTRA"]:
         addChar()
@@ -134,9 +134,9 @@ def lexical():
             next_token = Token.RIGHT_PAREN
         elif c == ';':
             next_token = Token.SEMICOLON
-        else:
-            print(f'(Error) Lexical Anaylzer :: 모르는 문자(" {input_char} ")가 입력되었습니다.')
-            next_token = Token.UNKNOWN
+        
+        print(f'(Error) Lexical Anaylzer :: 모르는 문자(" {input_char} ")가 입력되었습니다.')
+        next_token = Token.UNKNOWN
         return next_token
     
     elif charClass == char_group["NEWLINE"]:
@@ -150,10 +150,6 @@ def lexical():
     else:
         next_token = Token.UNKNOWN
         return next_token
-
-def printLine():
-    tokenCounter = TokenCounter()
-    tokenCounter.printLine()
 
 
 class TokenCounter:
@@ -183,3 +179,6 @@ class TokenCounter:
             print(f'ID: {self.token_count[self.id_idx]}; CONST: {self.token_count[self.const_idx]}; OP: {self.token_count[self.op_idx]};')
             self.current_line = ""
             self.token_count[0] = self.token_count[1] = self.token_count[2] = 0
+
+
+tokenCounter = TokenCounter()

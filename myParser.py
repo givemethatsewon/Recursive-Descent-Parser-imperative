@@ -4,6 +4,7 @@ import symbolTable
 import myToken as Token
 
 
+#전역 변수 - 함수 내에서 조회할 땐 그냥 쓰되 함수 내에서 전역 변수에 값 변경이 일어나야하면 global로 선언하고 사용
 hasErrorOnStatement = False
 recentMessage = ""
 
@@ -15,14 +16,14 @@ def raise_parser_exception(message: str):
     global hasErrorOnStatement, recentMessage
     hasErrorOnStatement = True
     recentMessage = message
-    raise Exception(f'(Error) 문법 오류: {message}')
+    raise Exception(f'(Error) Parser :: 문법 오류 {message}')
 
 #경고 처리를 위한 함수
 def raise_parser_warning(message: str):
     global recentMessage, hasErrorOnStatement
     hasErrorOnStatement = True
     recentMessage = message
-    print(f'(Warning) 경고: {message}')
+    print(f'(Warning) Parser :: {message}')
 
 #다음 토큰을 가져오는 함수. NEWLINE을 만나면 재귀적으로 실행되어 다음 토큰을 가져온다.
 def getNextToken():
@@ -48,7 +49,7 @@ def resetUntillEnd():
     while next_token != Token.NEWLINE and next_token != Token.EOF and next_token != Token.SEMICOLON:
         next_token = lexicalAnalyzer.lexical()
     
-    lexicalAnalyzer.printLine()
+    lexicalAnalyzer.tokenCounter.printLine()
 
     return next_token
 
@@ -141,9 +142,64 @@ def term():
 
 
 # <factor_tail> → <mult_op><factor><factor_tail> | ε
+def factor_tail():
+    print("Enter factor_tail")
+    current_token = lexicalAnalyzer.next_token #현재 토큰
 
+    if current_token == Token.MULT_OP:  # * or /
+        next_token = getNextToken() #다음 토큰
+        parsed_value = factor()
+        parsed_value *= factor_tail()
+        print("Exit factor_tail")
+        return parsed_value
+    
+    print("Exit factor_tail")
+    return 1 #epsilon case
+    
 
+# <factor> → <left_paren><expression><right_paren> | <ident> | <const>
+def factor():
+    print("Enter factor")
+    current_token = lexicalAnalyzer.next_token #현재 토큰
 
+    if current_token == Token.LEFT_PAREN:
+        next_token = getNextToken() #다음 토큰
+        parsed_value = expression()
+        
+        current_token = lexicalAnalyzer.next_token #현재 토큰
+        if current_token == Token.RIGHT_PAREN:
+            next_token = getNextToken() #다음 토큰
+            return parsed_value
+        raise_parser_exception('")" 로 괄호가 닫히지 않음')
+    elif current_token == Token.IDENT:
+        name = lexicalAnalyzer.token_string #현재 토큰(IDENT)의 token_string
+        next_token = getNextToken() #다음 토큰
+        if symbolTable.hasKey(name) and symbolTable.getValue(name):
+            return symbolTable.getValue(name)
+        symbolTable.setVar(name, None)
+    elif current_token == Token.CONST:
+        const = int(lexicalAnalyzer.token_string) #현재 토큰(CONST)의 token_string
+        next_token = getNextToken() #다음 토큰
+        return const
+    else:
+        #가장 작은 단위인 factor에서 연산자 중복 처리
+        current_token = lexicalAnalyzer.next_token  #현재 토큰
+        if (previousToken == Token.ADD_OP or previousToken == Token.MULT_OP) and (current_token == Token.ADD_OP or current_token == Token.MULT_OP):
+            if "중복 연산자" in recentMessage:
+                recentMessage = f'"중복연산자" {lexicalAnalyzer.token_string} 제거, 추가적으로 {recentMessage}'
+            else:
+                recentMessage = f'"중복연산자" {lexicalAnalyzer.token_string} 제거'
 
+        #Token Counter 중복 연산자 제거, 여러개 중복까지 대응
+        temp = lexicalAnalyzer.tokenCounter.current_line
+        toReplace = lexicalAnalyzer.token_string
+        lastIdx = temp.rfind(toReplace)
+        firstIdx = temp.find(toReplace)
+        #슬라이싱 사용
+        temp = temp[:firstIdx] + toReplace + temp[lastIdx+1:]
 
+        lexicalAnalyzer.tokenCounter.current_line = temp
+        hasErrorOnStatement = True
+        return factor()
+    raise_parser_exception(f'잘못된 factor ({previousTokenString})이(가) 주어짐, factor는 <left_paren>, <ident>, <const> 중 하나가 와야함')
 
