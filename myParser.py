@@ -21,8 +21,8 @@ def getNextToken():
     previousTokenString = lexicalAnalyzer.token_string
 
     next_token = lexicalAnalyzer.lexical()
-    if next_token == Token.NEWLINE:
-        return getNextToken()
+    # if next_token == Token.NEWLINE:
+    #     return getNextToken()
     
     # print(f"Next_Token: {next_token}, Token String: {lexicalAnalyzer.token_string}")
     return next_token
@@ -47,7 +47,7 @@ def program():
     statements()
     
 
-# <statements> → <statement> | <statement><semi_colon><statements>
+# <statements> → <statement> | <statement><semi_colon><statement>
 def statements():
     global hasErrorOnStatement, recentMessage
 
@@ -58,9 +58,10 @@ def statements():
 
     if current_token == Token.SEMICOLON:    #세미콜론 만남
         next_token = getNextToken() #다음 토큰
+
         if next_token == Token.EOF:
             hasErrorOnStatement = True
-            recentMessage = '(Error) Parser :: 문법 오류_ 세미콜론 뒤에 주어진 <statement> 없음. 불필요한 ;이 사용되었음'
+            recentMessage = '(Warning) Parser :: 경교_ 세미콜론 뒤에 주어진 <statement> 없음. 불필요한 ;이 사용되었음'
         statement() 
         lexicalAnalyzer.tokenCounter.printLine() #결과 출력
 

@@ -117,7 +117,7 @@ def getChar():
         return "EXTRA"
 
 def isWhitespace(ch: str):
-    if ch == '\n' or ch == '\r':
+    if ch == '\n' or ch == '\r' or ' ':
         return False
     return ord(ch) <= 32 
 
