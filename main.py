@@ -5,8 +5,8 @@ import myParser
 
 #python main.py -v input.txt
 def main():
-    command_line = sys.argv[1:] #[-v, input.txt]
-    
+    # command_line = sys.argv[1:] #[-v, input.txt]/
+    command_line = ["-v", "inputs/eval1.in.txt"]
     try:
         if command_line[-1] != "-v":
             file_name = command_line[-1]
@@ -15,9 +15,10 @@ def main():
         else:
             raise IndexError
 
-    if verbose:
-        reader = open(file_name, "r")
-    
+        if verbose:
+            file_handle = open(file_name, "r")
+            lexicalAnalyzer.lexicalAnalyzer(file_handle)
+
 
 
 

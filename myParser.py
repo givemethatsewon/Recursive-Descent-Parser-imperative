@@ -57,7 +57,7 @@ def resetUntillEnd():
 #<program> -> <statements>
 def program():
     print("Enter program")
-    token = getNextToken()
+    token = getNextToken() #첫 토큰 가져오기
     statements()
     print("Exit program")
 

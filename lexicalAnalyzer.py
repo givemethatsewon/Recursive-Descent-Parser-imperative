@@ -6,7 +6,8 @@ next_token = None
 input_stream = None
 input_char = None
 longLexeme = False
-
+#character group: "LETTER", "DIGIT", "ASSIGNMENT_1", "ASSIGNMENT_2", "EXTRA", "NEWLINE", "WHITESPACE", "EOF"
+charClass = None
 
 class TokenCounter:
     id_idx = 0
@@ -39,17 +40,41 @@ class TokenCounter:
 
 tokenCounter = TokenCounter()
 
+#main driver
+def lexicalAnalyzer(file_handle):
+    global input_stream, charClass
+    input_stream = file_handle
+    
+    getChar()
+    Token.print_token(lexical())
+    while next_token != Token.EOF:
+        Token.print_token(lexical())
 
-char_group = {
-    "LETTER": 0,
-    "DIGIT": 1,
-    "ASSIGNMENT_1": 2,
-    "ASSIGNMENT_2": 3,
-    "EXTRA": 4,
-    "NEWLINE": 5,
-    "WHITESPACE": 6,
-    "EOF": 7
-}
+def lookup():
+    global next_token
+    addChar()
+    c = token_string[0]
+    if ord(c) <= 32:
+        return lexical()
+    elif c == '+' or c == '-':
+        tokenCounter.addOp()
+        next_token = Token.ADD_OP
+    elif c == '*' or c == '/':
+        tokenCounter.addOp()
+        next_token = Token.MULT_OP
+    elif c == '(':
+        tokenCounter.addOp()
+        next_token = Token.LEFT_PAREN
+    elif c == ')':
+        tokenCounter.addOp()
+        next_token = Token.RIGHT_PAREN
+    elif c == ';':
+        next_token = Token.SEMICOLON
+    else:    
+        print(f'(Error) Lexical Anaylzer :: 모르는 문자(" {input_char} ")가 입력되었습니다.')
+        next_token = Token.UNKNOWN
+    return next_token
+
 
 def addChar():
     global token_string, input_char, longLexeme
@@ -61,30 +86,27 @@ def addChar():
         print("(Warning) Lexical Anaylzer :: Lexeme이 100글자를 초과")
         
 
-def getChar(add: bool):
+def getChar():
     global input_char
     input_char = input_stream.read(1)
     
-    if add:
-        addChar()
-    
     if not input_char:
-        return char_group["EOF"]
+        return "EOF"
     elif input_char.isalpha():
-        return char_group["LETTER"]
+        return "LETTER"
     elif input_char.isdigit():
-        return char_group["DIGIT"]
+        return "DIGIT"
     elif input_char.isspace():
         if input_char == "\n" or input_char == "\r":
-            return char_group["NEWLINE"]
+            return "NEWLINE"
         else:
-            return char_group["WHITESPACE"]
+            return "WHITESPACE"
     elif input_char == ":": 
-        return char_group["ASSIGNMENT_1"]
+        return "ASSIGNMENT_1"
     elif input_char == "=":
-        return char_group["ASSIGNMENT_2"]
+        return "ASSIGNMENT_2"
     else:
-        return char_group["EXTRA"]
+        return "EXTRA"
 
 def isWhitespace(ch: str):
     if ch == '\n' or ch == '\r':
@@ -92,90 +114,77 @@ def isWhitespace(ch: str):
     return ord(ch) <= 32 
 
 def lexical():
-    global token_string, next_token, longLexeme, input_char, tokenCounter
+    global token_string, next_token, longLexeme, tokenCounter, charClass
     token_string = ""
-    charClass = getChar(False)
 
     # Skip whitespace
-    while charClass == char_group["WHITESPACE"]:
-        charClass = getChar(False)
+    charClass = getChar()
+    while charClass == "WHITESPACE":
+        charClass = getChar()
 
     #LETTER
-    if charClass == char_group["LETTER"]:
+    if charClass == "LETTER":
         addChar()
-        charClass = getChar(True)
-
-        while charClass == char_group["LETTER"] or charClass == char_group["DIGIT"]:
-            getChar(False)
+        charClass = getChar()
+        while charClass == "LETTER" or charClass == "DIGIT":
             addChar()
-            charClass = getChar(True)
-        
+            charClass = getChar()
+
         tokenCounter.addId()
         next_token = Token.IDENT
         longLexeme = False
         return next_token
     
-    elif charClass == char_group["DIGIT"]:
+    #DIGIT
+    elif charClass == "DIGIT":
         addChar()
-        charClass = getChar(True)
+        charClass = getChar()
 
-        while charClass == char_group["DIGIT"]:
-            getChar(False)
+        while charClass == "DIGIT":
             addChar()
-            charClass = getChar(True)
+            charClass = getChar()
 
         tokenCounter.addConst()
         next_token = Token.CONST
         return next_token
     
-    elif charClass == char_group["ASSIGNMENT_1"]:
+    #:
+    elif charClass == "ASSIGNMENT_1":
         addChar()
-        charClass = getChar(False)
-        if charClass == char_group["ASSIGNMENT_2"]:
+        charClass = getChar()
+        # =
+        if charClass == "ASSIGNMENT_2":
             addChar()
-            charClass = getChar(True)
+            charClass = getChar()
             next_token = Token.ASSIGN_OP
+
             return next_token
         
+        #경고 발생
         print(f'(Error) Lexical Anaylzer :: 모르는 문자(" {input_char} ")가 입력되었습니다.')
-        print('  예상했던 문자는 "="입니다.')
+        print('예상했던 문자는 "="입니다.')
 
         next_token = Token.UNKNOWN
         return next_token
     
-    elif charClass == char_group["ASSIGNMENT_2"]:
+    #:없이 =만 입력된 경우
+    elif charClass == "ASSIGNMENT_2":
         print(f'(Error) Lexical Anaylzer :: 모르는 문자(" {input_char} ")가 입력되었습니다.')
-        print('  예상했던 문자는 ":="입니다.')
-        
-    elif charClass == char_group["EXTRA"]:
-        addChar()
-        c = token_string[0]
-        if ord(c) <= 32:
-            return lexical()
-        elif c == '+' or c == '-':
-            tokenCounter.addOp()
-            next_token = Token.ADD_OP
-        elif c == '*' or c == '/':
-            tokenCounter.addOp()
-            next_token = Token.MULT_OP
-        elif c == '(':
-            tokenCounter.addOp()
-            next_token = Token.LEFT_PAREN
-        elif c == ')':
-            tokenCounter.addOp()
-            next_token = Token.RIGHT_PAREN
-        elif c == ';':
-            next_token = Token.SEMICOLON
-        
-        print(f'(Error) Lexical Anaylzer :: 모르는 문자(" {input_char} ")가 입력되었습니다.')
-        next_token = Token.UNKNOWN
-        return next_token
+        print('예상했던 문자는 ":="입니다.')
     
-    elif charClass == char_group["NEWLINE"]:
+        next_token = Token.UNKNOWN
+        return next_token 
+    
+    #EXTRA(연산기호 등)
+    elif charClass == "EXTRA":
+        return lookup()
+
+    elif charClass == "NEWLINE":
         next_token = Token.NEWLINE
         return next_token
     
-    elif charClass == char_group["EOF"]:
+    #EOF
+    elif charClass == "EOF":
         next_token = Token.EOF
         return next_token
     
