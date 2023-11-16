@@ -20,11 +20,6 @@ CHAR_GROUP = {
     "UNKNOWN": 8
 }
 
-#declare = a function to make lex_handle ready to read
-def declare_lex_handle(handle):
-    global lex_handle
-    lex_handle = handle
-
 class TokenCounter:
     id_idx = 0
     const_idx = 1
@@ -122,6 +117,7 @@ def lexical():
             addChar()
             charClass = getChar()
         next_token = Token.IDENT
+        tokenCounter.addId()    #ID 카운트 증가
     
     #CONST
     elif charClass == CHAR_GROUP["DIGIT"]:
@@ -131,6 +127,7 @@ def lexical():
             addChar()
             charClass = getChar()
         next_token = Token.CONST
+        tokenCounter.addConst() #CONST 카운트 증가
     
     elif charClass == CHAR_GROUP["ASSIGNMENT_1"]:
         addChar()
@@ -158,16 +155,16 @@ def lexical():
     elif charClass == CHAR_GROUP["EXTRA"]:
         ch = input_char
         if ch == '+' or ch == '-':
-            tokenCounter.addOp()
+            tokenCounter.addOp()    #OP 카운트 증가
             next_token = Token.ADD_OP
         elif ch == '*' or ch == '/':
-            tokenCounter.addOp()
+            tokenCounter.addOp()    #OP 카운트 증가
             next_token = Token.MULT_OP
         elif ch == '(':
-            tokenCounter.addOp()
+            tokenCounter.addOp()    #OP 카운트 증가
             next_token = Token.LEFT_PAREN
         elif ch == ')':
-            tokenCounter.addOp()
+            tokenCounter.addOp()    #OP 카운트 증가
             next_token = Token.RIGHT_PAREN
         elif ch == ';':
             next_token = Token.SEMICOLON

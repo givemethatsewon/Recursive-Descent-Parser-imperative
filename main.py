@@ -7,7 +7,7 @@ import symbolTable
 #python main.py -v input.txt
 def main():
     command_line = sys.argv[1:] #[-v, input.txt]
-    print(command_line)
+    # print(command_line)
     try:
         if command_line[-1] != "-v":
             file_name = command_line[-1]
@@ -27,7 +27,6 @@ def main():
                     Parser.program()
                 except RuntimeError as e:
                     if Parser.resetUntillEnd() == Token.EOF:
-                        print(e)
                         break
             lexicalAnalyzer.tokenCounter.printLine() #결과 출력
             print('Result ==>', end=" ")

@@ -11,7 +11,6 @@ recentMessage = ""
 previousToken = -1
 previousTokenString = ""
 
-
 #다음 토큰을 가져오는 함수. NEWLINE을 만나면 재귀적으로 실행되어 다음 토큰을 가져온다.
 def getNextToken():
     #backup previous token
@@ -20,21 +19,21 @@ def getNextToken():
     previousToken = lexicalAnalyzer.next_token
     previousTokenString = lexicalAnalyzer.token_string
 
-    next_token = lexicalAnalyzer.lexical()
+    token = lexicalAnalyzer.lexical()
     # if next_token == Token.NEWLINE:
     #     return getNextToken()
     
     # print(f"Next_Token: {next_token}, Token String: {lexicalAnalyzer.token_string}")
-    return next_token
+    return token
 
 
 
 #parser는 reset이 호출되면 lex가 newLine이나 EOF를 만날때까지 계속해서 lex를 호출한다.(consume)
 def resetUntillEnd():
-    next_token = lexicalAnalyzer.lexical()
+    next_token = getNextToken()
 
     while next_token != Token.NEWLINE and next_token != Token.EOF and next_token != Token.SEMICOLON:
-        next_token = lexicalAnalyzer.lexical()
+        next_token = getNextToken()
     
     lexicalAnalyzer.tokenCounter.printLine()
 
@@ -43,8 +42,10 @@ def resetUntillEnd():
 
 #<program> -> <statements>
 def program():
+    lexicalAnalyzer.charClass = lexicalAnalyzer.getChar() #첫 문자 가져오기
     next_token = getNextToken() #첫 토큰 가져오기
-    print(f"program() next_token: {next_token}, Token String: {lexicalAnalyzer.token_string}")
+    # print(f"program() next_token: {next_token}, Token String: {lexicalAnalyzer.token_string}")
+    # sys.exit(1)
     statements()
     
 
@@ -62,7 +63,7 @@ def statements():
 
         if next_token == Token.EOF:
             hasErrorOnStatement = True
-            recentMessage = '(Warning) Parser :: 경교_ 세미콜론 뒤에 주어진 <statement> 없음. 불필요한 ;이 사용되었음'
+            recentMessage = '(Warning) Parser :: 경고_ 세미콜론 뒤에 주어진 <statement> 없음. 불필요한 ;이 사용되었음'
         statement() 
         lexicalAnalyzer.tokenCounter.printLine() #결과 출력
 
@@ -175,6 +176,7 @@ def factor():
     else:
         #가장 작은 단위인 factor에서 연산자 중복 처리
         current_token = lexicalAnalyzer.next_token  #현재 토큰
+        print(f"current_token: {current_token}, previousToken: {previousToken}")
         if (previousToken == Token.ADD_OP or previousToken == Token.MULT_OP) and (current_token == Token.ADD_OP or current_token == Token.MULT_OP):
             hasErrorOnStatement = True
             if "중복 연산자" in recentMessage:
@@ -182,6 +184,7 @@ def factor():
             else:
                 recentMessage = f'"(Warning) Parser:: 경고_ 중복연산자" {lexicalAnalyzer.token_string} 제거'
 
+        # TODO: 연산자 중복 로직 보완
         #Token Counter 중복 연산자 제거, 여러개 중복까지 대응
         temp = lexicalAnalyzer.tokenCounter.current_line
         toReplace = lexicalAnalyzer.token_string
