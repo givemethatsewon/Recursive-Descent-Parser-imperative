@@ -6,7 +6,8 @@ import symbolTable
 
 #python main.py -v input.txt
 def main():
-    command_line = sys.argv[1:] #[-v, input.txt]/
+    command_line = sys.argv[1:] #[-v, input.txt]
+    print(command_line)
     try:
         if command_line[-1] != "-v":
             file_name = command_line[-1]
@@ -46,8 +47,11 @@ def main():
         print("Error: File not found")
         return
     
-    finally:
+    else:
         file_handle.close()
+        return
+    
+
 
 
 if __name__ == "__main__":

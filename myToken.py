@@ -34,6 +34,6 @@ def print_token(t: int):
     elif t == UNKNOWN:
         print("UNKNOWN")
     else:
-        print("Error: Unknown token")
+        print(f"Error: Unknown token {t}")
 
     

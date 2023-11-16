@@ -43,7 +43,8 @@ def resetUntillEnd():
 
 #<program> -> <statements>
 def program():
-    first_token = getNextToken() #첫 토큰 가져오기
+    next_token = getNextToken() #첫 토큰 가져오기
+    print(f"program() next_token: {next_token}, Token String: {lexicalAnalyzer.token_string}")
     statements()
     
 
