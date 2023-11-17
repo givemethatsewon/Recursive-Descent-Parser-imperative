@@ -142,13 +142,12 @@ def lexical():
             next_token = Token.ASSIGN_OP
 
         else:
-            print(f'(Error) Lexical Anaylzer :: 모르는 문자(" {input_char} ")가 입력되었습니다.')
-            print('예상했던 문자는 "="입니다.')
+            print(f'(Error) Lexical Anaylzer :: 정의되지 않은 문자(" {input_char} ")가 입력되었습니다.')
             next_token = Token.UNKNOWN
 
     
     elif charClass == CHAR_GROUP["ASSIGNMENT_2"]:   #틀린 파싱이므로 addChar()를 하지 않는다.
-        print(f'(Error) Lexical Anaylzer :: 모르는 문자(" {input_char} ")가 입력되었습니다.')
+        print(f'(Error) Lexical Anaylzer :: 정의되지 않은 문자(" {input_char} ")가 입력되었습니다.')
         print('예상했던 문자는 ":="입니다.')
         next_token = Token.UNKNOWN
     

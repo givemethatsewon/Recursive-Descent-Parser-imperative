@@ -119,7 +119,7 @@ def term_tail():
         next_token = getNextToken() #다음 값
         while next_token == Token.ADD_OP or next_token == Token.MULT_OP:
             hasErrorOnStatement = True
-            if "중복 연산자" in recentMessage:
+            if "중복연산자" in recentMessage:
                 recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거, 추가적으로 {recentMessage}'
             else:
                 recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거'
@@ -202,36 +202,6 @@ def factor():
         next_token = getNextToken() #다음 토큰
         return const
     
-    # else:
-    #     #가장 작은 단위인 factor에서 연산자 중복 처리
-    #     current_token = lexicalAnalyzer.next_token  #현재 토큰
-    #     print(f"current_token: {current_token}, previousToken: {previousToken}")
-    #     if (previousToken == Token.ADD_OP or previousToken == Token.MULT_OP) and (current_token == Token.ADD_OP or current_token == Token.MULT_OP):
-    #         hasErrorOnStatement = True
-    #         if "중복 연산자" in recentMessage:
-    #             recentMessage = f'"(Warning) Parser:: 경고_ 중복연산자" {lexicalAnalyzer.token_string} 제거, 추가적으로 {recentMessage}'
-    #         else:
-    #             recentMessage = f'"(Warning) Parser:: 경고_ 중복연산자" {lexicalAnalyzer.token_string} 제거'
-    #     # TODO: 연산자 중복 로직 보완
-    #     #Token Counter 중복 연산자 제거, 여러개 중복까지 대응
-        # temp = lexicalAnalyzer.tokenCounter.current_line
-        # toReplace = lexicalAnalyzer.token_string
-        # lastIdx = temp.rfind(toReplace)
-        # firstIdx = temp.find(toReplace)
-        # #슬라이싱 사용
-        # temp = temp[:firstIdx] + toReplace + temp[lastIdx+1:]
-    
     hasErrorOnStatement = True
     recentMessage = f'(Error) Parser :: 문법 오류_ 잘못된 factor ({previousTokenString})이(가) 주어짐, factor는 <left_paren>, 정의된 <ident>, <const> 중 하나가 와야함'
 
-def handle_redundant_op():
-    global hasErrorOnStatement, recentMessage, next_token
-    hasErrorOnStatement = True
-    if "중복 연산자" in recentMessage:
-        recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거, 추가적으로 {recentMessage}'
-    else:
-        recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거'
-
-    lexicalAnalyzer.tokenCounter.change_line(lexicalAnalyzer.token_string)
-    
-    next_token = getNextToken()
