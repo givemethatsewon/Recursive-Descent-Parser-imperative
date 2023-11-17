@@ -38,8 +38,12 @@ class TokenCounter:
         self.token_count[self.op_idx] += 1
     
     def appendChar(self, ch: str):
-        if ch != '\n' and ch != '\r':
+        if ch != '\n':
             self.current_line += ch
+    
+    def change_line(self, ch: str):
+        self.current_line = self.current_line.replace(ch, "", 1)
+        self.token_count[self.op_idx] -= 1
 
     def printLine(self):
         if self.current_line.strip() != "":

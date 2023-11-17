@@ -27,8 +27,9 @@ def main():
                     Parser.program()
                 except RuntimeError as e:
                     if Parser.resetUntillEnd() == Token.EOF:
+                        print(e)
                         break
-            lexicalAnalyzer.tokenCounter.printLine() #결과 출력
+            # lexicalAnalyzer.tokenCounter.printLine() #결과 출력
             print('Result ==>', end=" ")
             for key, value in symbolTable.symbolTable.items():
                 value = value if value else "Unknown"

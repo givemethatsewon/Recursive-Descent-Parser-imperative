@@ -28,11 +28,11 @@ def getNextToken():
 
 
 
-#parser는 reset이 호출되면 lex가 newLine이나 EOF를 만날때까지 계속해서 lex를 호출한다.(consume)
+#parser는 resetUntillEnd가 호출되면 lex가 newLine이나 EOF를 만날때까지 계속해서 lex를 호출한다.(consume)
 def resetUntillEnd():
     next_token = getNextToken()
 
-    while next_token != Token.NEWLINE and next_token != Token.EOF and next_token != Token.SEMICOLON:
+    while next_token != Token.NEWLINE and next_token != Token.EOF:
         next_token = getNextToken()
     
     lexicalAnalyzer.tokenCounter.printLine()
@@ -82,10 +82,16 @@ def statement():
             try:
                 parsed_value = expression() 
                 symbolTable.setVar(name, parsed_value)
+
+            except TypeError:
+                symbolTable.setVar(name, None)
+                hasErrorOnStatement = True
+                recentMessage = f'(Error) Parser:: 문법 오류_  정의되지 않은 변수가 사용됨'
+
             except Exception as e:  #expression에서 에러가 발생한 경우
                 symbolTable.setVar(name, None)
                 hasErrorOnStatement = True
-                recentMessage = '(Error) Parser:: 문법 오류_ 식에서 정의되지 않은 변수가 사용됨.'
+                recentMessage = f'(Error) Parser:: 문법 오류_  RHS에서 오류 {e}.'
         else: #등호가 안 나온 경우
             hasErrorOnStatement = True
             recentMessage = '(Error) Parser :: 문법 오류_ ":=(assignment)"이 없음.'
@@ -107,9 +113,22 @@ def expression():
 
 # <term_tail> → <add_op><term><term_tail> | ε
 def term_tail():
+    global hasErrorOnStatement, recentMessage
     current_token = lexicalAnalyzer.next_token #현재 값
     if current_token == Token.ADD_OP:  # + or -
         next_token = getNextToken() #다음 값
+        while next_token == Token.ADD_OP or next_token == Token.MULT_OP:
+            hasErrorOnStatement = True
+            if "중복 연산자" in recentMessage:
+                recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거, 추가적으로 {recentMessage}'
+            else:
+                recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거'
+
+            lexicalAnalyzer.tokenCounter.change_line(lexicalAnalyzer.token_string)
+            
+            next_token = getNextToken()
+
+
         parsed_value = term()
         parsed_value += term_tail()    
         return parsed_value
@@ -134,10 +153,19 @@ def term():
 
 # <factor_tail> → <mult_op><factor><factor_tail> | ε
 def factor_tail():
+    global hasErrorOnStatement, recentMessage
     current_token = lexicalAnalyzer.next_token #현재 토큰
 
     if current_token == Token.MULT_OP:  # * or /
         next_token = getNextToken() #다음 토큰
+        while next_token == Token.ADD_OP or next_token == Token.MULT_OP:
+            hasErrorOnStatement = True
+            recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.next_token}" 제거'
+            line = lexicalAnalyzer.tokenCounter.current_line
+            line.replace(lexicalAnalyzer.token_string, "", 1)
+            print(line)
+            next_token = getNextToken()
+
         parsed_value = factor()
         parsed_value *= factor_tail()
         return parsed_value
@@ -173,28 +201,25 @@ def factor():
         next_token = getNextToken() #다음 토큰
         return const
     
-    else:
-        #가장 작은 단위인 factor에서 연산자 중복 처리
-        current_token = lexicalAnalyzer.next_token  #현재 토큰
-        print(f"current_token: {current_token}, previousToken: {previousToken}")
-        if (previousToken == Token.ADD_OP or previousToken == Token.MULT_OP) and (current_token == Token.ADD_OP or current_token == Token.MULT_OP):
-            hasErrorOnStatement = True
-            if "중복 연산자" in recentMessage:
-                recentMessage = f'"(Warning) Parser:: 경고_ 중복연산자" {lexicalAnalyzer.token_string} 제거, 추가적으로 {recentMessage}'
-            else:
-                recentMessage = f'"(Warning) Parser:: 경고_ 중복연산자" {lexicalAnalyzer.token_string} 제거'
-
-        # TODO: 연산자 중복 로직 보완
-        #Token Counter 중복 연산자 제거, 여러개 중복까지 대응
-        temp = lexicalAnalyzer.tokenCounter.current_line
-        toReplace = lexicalAnalyzer.token_string
-        lastIdx = temp.rfind(toReplace)
-        firstIdx = temp.find(toReplace)
-        #슬라이싱 사용
-        temp = temp[:firstIdx] + toReplace + temp[lastIdx+1:]
-
-        lexicalAnalyzer.tokenCounter.current_line = temp
-        return factor()
+    # else:
+    #     #가장 작은 단위인 factor에서 연산자 중복 처리
+    #     current_token = lexicalAnalyzer.next_token  #현재 토큰
+    #     print(f"current_token: {current_token}, previousToken: {previousToken}")
+    #     if (previousToken == Token.ADD_OP or previousToken == Token.MULT_OP) and (current_token == Token.ADD_OP or current_token == Token.MULT_OP):
+    #         hasErrorOnStatement = True
+    #         if "중복 연산자" in recentMessage:
+    #             recentMessage = f'"(Warning) Parser:: 경고_ 중복연산자" {lexicalAnalyzer.token_string} 제거, 추가적으로 {recentMessage}'
+    #         else:
+    #             recentMessage = f'"(Warning) Parser:: 경고_ 중복연산자" {lexicalAnalyzer.token_string} 제거'
+    #     # TODO: 연산자 중복 로직 보완
+    #     #Token Counter 중복 연산자 제거, 여러개 중복까지 대응
+        # temp = lexicalAnalyzer.tokenCounter.current_line
+        # toReplace = lexicalAnalyzer.token_string
+        # lastIdx = temp.rfind(toReplace)
+        # firstIdx = temp.find(toReplace)
+        # #슬라이싱 사용
+        # temp = temp[:firstIdx] + toReplace + temp[lastIdx+1:]
     
     hasErrorOnStatement = True
     recentMessage = f'(Error) Parser :: 문법 오류_ 잘못된 factor ({previousTokenString})이(가) 주어짐, factor는 <left_paren>, 정의된 <ident>, <const> 중 하나가 와야함'
+
