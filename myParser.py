@@ -128,7 +128,6 @@ def term_tail():
             
             next_token = getNextToken()
 
-
         parsed_value = term()
         parsed_value += term_tail()    
         return parsed_value
@@ -160,10 +159,12 @@ def factor_tail():
         next_token = getNextToken() #다음 토큰
         while next_token == Token.ADD_OP or next_token == Token.MULT_OP:
             hasErrorOnStatement = True
-            recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.next_token}" 제거'
-            line = lexicalAnalyzer.tokenCounter.current_line
-            line.replace(lexicalAnalyzer.token_string, "", 1)
-            print(line)
+            if "중복 연산자" in recentMessage:
+                recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거, 추가적으로 {recentMessage}'
+            else:
+                recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거'
+
+            lexicalAnalyzer.tokenCounter.change_line(lexicalAnalyzer.token_string)
             next_token = getNextToken()
 
         parsed_value = factor()
@@ -223,3 +224,14 @@ def factor():
     hasErrorOnStatement = True
     recentMessage = f'(Error) Parser :: 문법 오류_ 잘못된 factor ({previousTokenString})이(가) 주어짐, factor는 <left_paren>, 정의된 <ident>, <const> 중 하나가 와야함'
 
+def handle_redundant_op():
+    global hasErrorOnStatement, recentMessage, next_token
+    hasErrorOnStatement = True
+    if "중복 연산자" in recentMessage:
+        recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거, 추가적으로 {recentMessage}'
+    else:
+        recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거'
+
+    lexicalAnalyzer.tokenCounter.change_line(lexicalAnalyzer.token_string)
+    
+    next_token = getNextToken()

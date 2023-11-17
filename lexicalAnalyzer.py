@@ -42,7 +42,7 @@ class TokenCounter:
             self.current_line += ch
     
     def change_line(self, ch: str):
-        self.current_line = self.current_line.replace(ch, "", 1)
+        self.current_line = self.current_line.replace(f" {ch}", "", 1)
         self.token_count[self.op_idx] -= 1
 
     def printLine(self):
