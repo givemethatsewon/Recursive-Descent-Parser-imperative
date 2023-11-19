@@ -1,2 +1,0 @@
-operand1 := 2;
-operand2 := operand1 + 1;

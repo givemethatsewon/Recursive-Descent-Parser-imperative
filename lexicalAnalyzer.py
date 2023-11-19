@@ -71,13 +71,13 @@ def lexicalAnalyzer():
 
 
 
-#addChar - a function to add input_char(nextChar) to lexeme
+#addChar - lexeme에 input_char를 한 글자씩 추가
 def addChar():
     global lexeme
     lexeme.append(input_char)
         
 
-#getChar - a function to get the next character of input and returns its character class
+#getChar - input_stream의 input_char를 읽어와서 charClass를 결정
 def getChar():
     global input_char, tokenCounter, input_stream
 

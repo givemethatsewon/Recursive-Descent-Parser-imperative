@@ -3,15 +3,14 @@ import lexicalAnalyzer
 import symbolTable
 import myToken as Token
 
-#TODO 세미콜론 없는 경우 경고 만들고 parsing 계속하도록
-#전역 변수 - 함수 내에서 조회할 땐 그냥 쓰되 함수 내에서 전역 변수에 값 변경이 일어나야하면 global로 선언하고 사용
+#?전역 변수 - 함수 내에서 조회할 땐 그냥 쓰되 함수 내에서 전역 변수에 값 변경이 일어나야하면 global로 선언하고 사용
 hasErrorOnStatement = False
 recentMessage = ""
 
 previousToken = -1
 previousTokenString = ""
 
-#다음 토큰을 가져오는 함수. NEWLINE을 만나면 재귀적으로 실행되어 다음 토큰을 가져온다.
+
 def getNextToken():
     #backup previous token
     global previousToken, previousTokenString, hasErrorOnStatement, recentMessage
@@ -20,24 +19,7 @@ def getNextToken():
     previousTokenString = lexicalAnalyzer.token_string
 
     token = lexicalAnalyzer.lexical()
-    # if next_token == Token.NEWLINE:
-    #     return getNextToken()
-    
-    # print(f"Next_Token: {next_token}, Token String: {lexicalAnalyzer.token_string}")
     return token
-
-
-
-#parser는 resetUntillEnd가 호출되면 lex가 newLine이나 EOF를 만날때까지 계속해서 lex를 호출한다.(consume)
-def resetUntillEnd():
-    next_token = getNextToken()
-
-    while next_token != Token.NEWLINE and next_token != Token.EOF:
-        next_token = getNextToken()
-    
-    lexicalAnalyzer.tokenCounter.printLine()
-
-    return next_token
 
 
 #<program> -> <statements>
