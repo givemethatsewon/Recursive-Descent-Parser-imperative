@@ -96,18 +96,18 @@ def expression():
 # <term_tail> → <add_op><term><term_tail> | ε
 def term_tail():
     global hasErrorOnStatement, recentMessage
-    current_token = lexicalAnalyzer.next_token #현재 값
+    current_token = lexicalAnalyzer.next_token #현재 토큰
+    
     if current_token == Token.ADD_OP:  # + or -
         next_token = getNextToken() #다음 값
         while next_token == Token.ADD_OP or next_token == Token.MULT_OP:
             hasErrorOnStatement = True
             if "중복연산자" in recentMessage:
-                recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거, 추가적으로 {recentMessage}'
+                recentMessage = f'{recentMessage}\n(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거, '
             else:
                 recentMessage = f'(Warning) Parser:: 경고_ 중복연산자 "{lexicalAnalyzer.token_string}" 제거'
 
             lexicalAnalyzer.tokenCounter.change_line(lexicalAnalyzer.token_string)
-            
             next_token = getNextToken()
 
         parsed_value = term()
