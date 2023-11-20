@@ -21,12 +21,13 @@ CHAR_GROUP = {
 }
 
 class TokenCounter:
-    id_idx = 0
-    const_idx = 1
-    op_idx = 2
+    def __init__(self):
+        self.id_idx = 0
+        self.const_idx = 1
+        self.op_idx = 2
 
-    current_line = ""
-    token_count = [0, 0, 0]
+        self.current_line = ""
+        self.token_count = [0, 0, 0]
 
     def addId(self):
         self.token_count[self.id_idx] += 1
