@@ -4,6 +4,8 @@
 
 임의의 이름이 부여된 텍스트 파일 (Command Line 파라미터로 파일명이 주어짐.)
 (예: "python main.py eval1.txt)
+-v 옵션이 추가될 경우 lexical analyzer가 동작하여 토큰들을 순서대로 출력한다.
+(예: "python main.py -v eval1.txt)
 
 ### 출력
 
